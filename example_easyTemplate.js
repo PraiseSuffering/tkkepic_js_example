@@ -3,7 +3,6 @@
 @Author Praise_suffering
 @License MIT License
 */
-//下面这些是用java类,应该不用管
 var HashMap=Java.type("java.util.HashMap")
 var RandomSkillItem=Java.type("tkk.epic.item.RandomSkillItem")
 var StupidOnlyClientTool=Java.type("tkk.epic.utils.StupidOnlyClientTool")
@@ -69,10 +68,16 @@ function init(customJsSkill){
 			//耐力不足
 			return
 		}
+		var mana=10
+		if(!ironMagicMana.checkMana(container.player,mana)){
+			//魔力不足
+			return
+		}
 		
 		//释放逻辑巴拉巴拉
 		this.data["animation"].play(container.player)
 		patch.setStamina(patch.getStamina()-stamina)
+		ironMagicMana.addMana(container.player,-mana)
 		container.cooldown=container.maxCooldow
 		container.mana=container.maxMana
 		container.needUpdate=true;
@@ -100,9 +105,18 @@ function regSkillBook(customJsSkill){//技能书 技能工作台配置 random_sk
 	lores[0]='{"italic":false,"extra":[{"color":"#ffffff","text":"example_empty lore"}],"text":""}'
 	lores[1]='{"italic":false,"extra":[{"color":"#ffffff","text":"可以镶嵌在任何武器、盔甲的任何槽."}],"text":""}'
 	
+	var itemDefaultSkill={};
+	//itemDefaultSkill["minecraft:golden_sword"]=[0,1]
+	
+	
+	
 	var SkillWorkbenchBlockEntity=Java.type("tkk.epic.block.entity.SkillWorkbenchBlockEntity")
 	var ArmorItem=Java.type("net.minecraft.world.item.ArmorItem")
-	SkillWorkbenchBlockEntity.SKILL_PREDICATE.put(getSkillId(),
+	var EquipSkillHandle=Java.type("tkk.epic.skill.EquipSkillHandle")
+	var ResourceLocation=Java.type("net.minecraft.resources.ResourceLocation")
+	var StringArray=Java.type("java.lang.String[]")
+	var SkillId=getSkillId()
+	SkillWorkbenchBlockEntity.SKILL_PREDICATE.put(SkillId,
 	new Consumer({accept:function(e){
 		var slots=null
 		var item=e.target.m_41720_()
@@ -126,7 +140,7 @@ function regSkillBook(customJsSkill){//技能书 技能工作台配置 random_sk
 		}
 		}})
 	);
-	RandomSkillItem.regRandomSkill(getSkillId(),RandomSkillBookProbability,new Supplier({get:function(e){
+	RandomSkillItem.regRandomSkill(SkillId,RandomSkillBookProbability,new Supplier({get:function(e){
 		try{
 			var ItemStack=Java.type("net.minecraft.world.item.ItemStack")
 			var TkkEpicItems=Java.type("tkk.epic.item.TkkEpicItems")
@@ -134,7 +148,7 @@ function regSkillBook(customJsSkill){//技能书 技能工作台配置 random_sk
 			var ListTag=Java.type("net.minecraft.nbt.ListTag")
 			var StringTag=Java.type("net.minecraft.nbt.StringTag")
 			var give=new ItemStack(TkkEpicItems.SKILL_ITEM.get(),1);
-			give.m_41784_().m_128359_(SkillWorkbenchBlockEntity.SKILL_BOOK_TAG, getSkillId())
+			give.m_41784_().m_128359_(SkillWorkbenchBlockEntity.SKILL_BOOK_TAG, SkillId)
 			var display = give.m_41698_("display");
 			display.m_128359_("Name",displayName)
 			var loreNbt=new ListTag()
@@ -148,6 +162,20 @@ function regSkillBook(customJsSkill){//技能书 技能工作台配置 random_sk
 			return null
 		}
 	}}))
+	
+	for(var x in itemDefaultSkill){
+		var itemId=new ResourceLocation(x)
+		var arr=EquipSkillHandle.itemDefaultSkill.get(itemId)
+		if(arr==null){arr=new StringArray(16)}
+		var skillSlotArr=itemDefaultSkill[x]
+		for(var y in skillSlotArr){
+			arr[skillSlotArr[y]]=SkillId
+		}
+		EquipSkillHandle.itemDefaultSkill.put(itemId,arr)
+	}
+	
+
+
 }
 
 
@@ -309,6 +337,35 @@ function animationTemplateConnect_beAttackAndImmune(animationTemplate,nextAnimat
 }
 
 
+function ironMagicManaTool(){
+	var self=this
+	this.enable=false
+	try{
+		this.MagicData=Java.type("io.redspace.ironsspellbooks.api.magic.MagicData")
+		this.enable=true
+	}catch(e){}
+	
+	this.getMana=function(player){
+		if(!self.enable){return 0}
+		return self.MagicData.getPlayerMagicData(player).getMana()
+	}
+	this.setMana=function(player,mana){
+		if(!self.enable){return}
+		self.MagicData.getPlayerMagicData(player).setMana(mana)
+	}
+	this.addMana=function(player,mana){
+		if(!self.enable){return}
+		self.MagicData.getPlayerMagicData(player).addMana(mana)
+	}
+	this.checkMana=function(player,mana){
+		if(!self.enable){return true}
+		return self.MagicData.getPlayerMagicData(player).getMana()>=mana
+	}
+
+	
+	
+}
+var ironMagicMana=new ironMagicManaTool()
 
 
 
