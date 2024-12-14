@@ -42,7 +42,7 @@ function init(customJsSkill){
 	
 	Module_default.data["basicAttack"][1]=new AnimationTemplate(StupidOnlyClientTool.getAnimation("epicfight:biped/combat/longsword_auto2"),0);
 	Module_default.data["basicAttackStamina"][1]=0
-	Module_default.data["basicAttack"][2]=new AnimationTemplate(StupidOnlyClientTool.getAnimation("epicfight:biped/combat/longsword_auto3"),0.4);
+	Module_default.data["basicAttack"][2]=new AnimationTemplate(StupidOnlyClientTool.getAnimation("epicfight:biped/combat/longsword_auto3"),0.1);
 	Module_default.data["basicAttackStamina"][2]=0
 	Module_default.data["airSlash"]=new AnimationTemplate(StupidOnlyClientTool.getAnimation("epicfight:biped/combat/longsword_airslash"),0);
 	Module_default.data["airSlashStamina"]=2
@@ -61,10 +61,6 @@ function init(customJsSkill){
 	//主要用的就canBasicAttack是否可以普通攻击
 	AnimationTemplateFunction.customStateSpectrum_add(Module_default.data["dashAttack"],0,10,"canBasicAttack",false)
 	//提升手感手感
-	for(var x in Module_default.data["basicAttack"]){
-		AnimationTemplateFunction.customStateSpectrum_add(Module_default.data["basicAttack"][x],0,10,"movementLocked",true)
-	}
-	
 	
 	AnimationTemplateFunction.customCoord_add(Module_default.data["basicAttack"][0],0,0,0,0)
 	AnimationTemplateFunction.customCoord_add(Module_default.data["basicAttack"][0],0.3,0,0,-1.3)
@@ -106,6 +102,8 @@ function init(customJsSkill){
 	//AnimationTemplateFunction.customDamage_addTagKeyDamageType(Module_default.data["dashAttack"],"epicfight:bypasses_invulnerability")
 	//无视格挡
 	AnimationTemplateFunction.customDamage_addTagKeyDamageType(Module_default.data["airSlash"],"epicfight:guard_puncture")
+	AnimationTemplateFunction.customDamage_damage(Module_default.data["airSlash"],null,0,1)//1.0scale,airslash vanilla 1.5 scale
+	
 	Module_default.data["dashAttack"].onHurtFN.normal.add(
 	new Consumer({accept:function(args){
 			var template=args[0]
