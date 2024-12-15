@@ -342,6 +342,7 @@ function ironMagicManaTool(){
 	this.enable=false
 	try{
 		this.MagicData=Java.type("io.redspace.ironsspellbooks.api.magic.MagicData")
+		this.UpdateClient=Java.type("io.redspace.ironsspellbooks.api.util.UpdateClient")
 		this.enable=true
 	}catch(e){}
 	
@@ -352,10 +353,12 @@ function ironMagicManaTool(){
 	this.setMana=function(player,mana){
 		if(!self.enable){return}
 		self.MagicData.getPlayerMagicData(player).setMana(mana)
+		self.UpdateClient.SendManaUpdate(player,self.MagicData.getPlayerMagicData(player))
 	}
 	this.addMana=function(player,mana){
 		if(!self.enable){return}
 		self.MagicData.getPlayerMagicData(player).addMana(mana)
+		self.UpdateClient.SendManaUpdate(player,self.MagicData.getPlayerMagicData(player))
 	}
 	this.checkMana=function(player,mana){
 		if(!self.enable){return true}
@@ -366,6 +369,7 @@ function ironMagicManaTool(){
 	
 }
 var ironMagicMana=new ironMagicManaTool()
+
 
 
 
